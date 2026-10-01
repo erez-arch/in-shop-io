@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="INSHOP — autonomous retail. The technology behind the fridge.">
+<link rel="icon" href="logo.png">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>גרם אחד</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Heebo:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#07090C; --panel:#0E1319; --panel2:#121922; --line:#1B2430; --line2:#28384a;
+    --ink:#E8EEF5; --ink2:#B7C3D1; --muted:#7D8B9B;
+    --brand:#F26522; --brand-soft:rgba(242,101,34,.14);
+    --signal:#3DD68C; --warn:#E8B44A;
+    --display:'Rubik',system-ui,sans-serif;
+    --body:'Heebo',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--body); font-weight:300; -webkit-font-smoothing:antialiased;}
+  .page{direction:rtl; text-align:start;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding-inline:20px;}
+
+  /* ---------- type scale ---------- */
+  h1,h2,h3{font-family:var(--display); font-weight:900; margin:0; text-wrap:balance; letter-spacing:-.01em;}
+  h1{font-size:clamp(34px,6.4vw,64px); line-height:1.04;}
+  h2{font-size:clamp(25px,3.7vw,38px); line-height:1.12;}
+  h3{font-size:18px; font-weight:700; line-height:1.3;}
+  p{margin:0; line-height:1.75;}
+  .lede{font-size:clamp(16px,2.1vw,20px); color:var(--ink2); max-width:56ch;}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.18em; color:var(--muted); text-transform:uppercase;}
+  .num{font-family:var(--mono); font-variant-numeric:tabular-nums;}
+  .muted{color:var(--muted);}
+
+  /* ---------- top bar ---------- */
+  .bar{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; backdrop-filter:blur(10px);
+       background:rgba(7,9,12,.82); border-bottom:1px solid var(--line);}
+  .bar .wrap{display:flex; align-items:center; gap:14px; padding-block:13px;}
+  .logo{display:flex; align-items:center; line-height:0;}
+  .logo img{height:26px; width:auto;}
+  .logo.sm img{height:19px;}
+  .lang{margin-inline-start:12px; cursor:pointer; font-family:var(--mono); font-size:12px; letter-spacing:.08em;
+        color:var(--ink2); background:transparent; border:1px solid var(--line2); border-radius:999px; padding:6px 12px;}
+  .lang:hover{border-color:var(--brand); color:var(--brand);}
+  .lang:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+  .contact{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 10px; font-size:14.5px; color:var(--ink2);}
+  .mail{font-family:var(--mono); font-size:15px; color:var(--brand); text-decoration:none; border-bottom:1px solid rgba(242,101,34,.4); padding-bottom:2px;}
+  .mail:hover{color:var(--ink); border-bottom-color:var(--ink);}
+  .mail.sm{font-size:13px; border-bottom:0; color:var(--muted);}
+  .mail.sm:hover{color:var(--brand);}
+  /* English flips the page without a second stylesheet */
+  .page[dir="ltr"] .bar nav{margin-inline-start:auto;}
+  .bar nav{margin-inline-start:auto; display:flex; gap:20px; font-size:14px;}
+  .bar nav a{color:var(--ink2); text-decoration:none; padding-block:4px; border-bottom:1px solid transparent;}
+  .bar nav a:hover, .bar nav a:focus-visible{color:var(--ink); border-bottom-color:var(--brand);}
+  @media (max-width:760px){ .bar nav{display:none} }
+
+  /* ---------- hero ---------- */
+  .hero{padding-block:clamp(46px,8vw,96px) clamp(30px,5vw,54px);}
+  .hero .grid{display:grid; gap:clamp(26px,4vw,48px); grid-template-columns:1fr;}
+  @media (min-width:900px){ .hero .grid{grid-template-columns:1.05fr .95fr; align-items:center;} }
+  .hero h1 span{color:var(--brand);}
+  .hero .lede{margin-top:18px;}
+  .heroCtas{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;}
+  .btn{display:inline-flex; align-items:center; gap:8px; font-family:var(--display); font-weight:700; font-size:14.5px;
+       border-radius:999px; padding:11px 19px; text-decoration:none; border:1px solid transparent; cursor:pointer;}
+  .btn.primary{background:var(--brand); color:#0b0c0e;}
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn.ghost{border-color:var(--line2); color:var(--ink);}
+  .btn.ghost:hover{border-color:var(--brand); color:var(--brand);}
+  .btn:focus-visible{outline:2px solid var(--brand); outline-offset:3px;}
+
+  /* ---------- instrument ---------- */
+  .scope{background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
+  .scope .head{display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--signal); box-shadow:0 0 0 4px rgba(61,214,140,.14);}
+  .scope canvas{display:block; width:100%; height:210px; max-width:100%;}
+  .readout{display:grid; grid-template-columns:auto 1fr; gap:2px 14px; padding:12px 14px 14px; border-top:1px solid var(--line); font-family:var(--mono); font-size:12.5px;}
+  .readout .t{color:var(--muted);}
+  .readout .v{color:var(--ink2);}
+  .readout .v b{color:var(--brand); font-weight:500;}
+  .weightNow{font-family:var(--mono); font-size:clamp(26px,4vw,34px); color:var(--ink); padding:10px 14px 0; font-variant-numeric:tabular-nums;}
+  .weightNow small{font-size:14px; color:var(--muted); margin-inline-start:4px;}
+
+  /* ---------- sections ---------- */
+  section{padding-block:clamp(44px,6.5vw,86px); border-top:1px solid var(--line);}
+  .shead{display:flex; flex-direction:column; gap:12px; margin-bottom:clamp(26px,3.6vw,42px); max-width:62ch;}
+
+  /* signal chain */
+  .chain{display:grid; gap:14px;}
+  @media (min-width:820px){ .chain{grid-template-columns:repeat(4,1fr);} }
+  .step{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 18px; position:relative; display:flex; flex-direction:column; gap:9px;}
+  .step .k{font-family:var(--mono); font-size:11px; color:var(--brand); letter-spacing:.14em;}
+  .step p{font-size:14.5px; color:var(--ink2);}
+  .step .unit{margin-top:auto; padding-top:12px; font-family:var(--mono); font-size:11.5px; color:var(--muted); border-top:1px dashed var(--line2);}
+
+  /* guards */
+  .guards{display:grid; gap:12px;}
+  @media (min-width:700px){ .guards{grid-template-columns:repeat(2,1fr);} }
+  @media (min-width:1000px){ .guards{grid-template-columns:repeat(3,1fr);} }
+  .guard{background:linear-gradient(180deg,var(--panel2),var(--panel)); border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:8px;}
+  .guard .top{display:flex; align-items:center; gap:9px;}
+  .guard .name{font-family:var(--display); font-weight:700; font-size:15.5px;}
+  .cad{margin-inline-start:auto; font-family:var(--mono); font-size:11px; color:var(--signal); border:1px solid rgba(61,214,140,.28); background:rgba(61,214,140,.08); border-radius:999px; padding:3px 9px; white-space:nowrap;}
+  .guard p{font-size:14px; color:var(--ink2);}
+
+  /* split feature */
+  .split{display:grid; gap:clamp(24px,4vw,46px); align-items:center;}
+  @media (min-width:900px){ .split{grid-template-columns:1fr 1fr;} }
+  .figure{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px;}
+  .ledger{display:flex; flex-direction:column; gap:0;}
+  .lrow{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:11px 2px; border-bottom:1px solid var(--line); font-size:14px;}
+  .lrow:last-child{border-bottom:0;}
+  .lrow .when{font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+  .lrow .qty{font-family:var(--mono); font-variant-numeric:tabular-nums;}
+  .qty.minus{color:var(--brand);} .qty.plus{color:var(--signal);}
+  .facts{display:grid; gap:10px; margin-top:20px;}
+  .fact{display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:baseline;}
+  .fact .n{font-family:var(--mono); color:var(--brand); font-size:15px;}
+  .fact .d{font-size:14.5px; color:var(--ink2);}
+
+  /* human layer */
+  .pay{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
+  .chip{font-family:var(--mono); font-size:12.5px; border:1px solid var(--line2); border-radius:999px; padding:7px 13px; color:var(--ink2);}
+  .chip b{color:var(--brand); font-weight:500;}
+
+  /* glossary */
+  .gloss{display:grid; gap:0; border-top:1px solid var(--line);}
+  .gitem{display:grid; grid-template-columns:minmax(120px,190px) 1fr; gap:14px; padding:15px 2px; border-bottom:1px solid var(--line); align-items:baseline;}
+  .gitem dt{font-family:var(--display); font-weight:700; font-size:15.5px;}
+  .gitem dd{margin:0; font-size:14.5px; color:var(--ink2);}
+  @media (max-width:560px){ .gitem{grid-template-columns:1fr; gap:5px;} }
+
+  /* closing */
+  .close{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:clamp(26px,4vw,44px); display:flex; flex-direction:column; gap:16px;}
+  footer{border-top:1px solid var(--line); padding-block:26px; color:var(--muted); font-size:13px;}
+  footer .wrap{display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;}
+
+  /* ---------- the clip: a real purchase, shot in a branch ---------- */
+  .device{margin:0; display:flex; flex-direction:column; gap:12px;}
+  .glass{position:relative; border-radius:22px; overflow:hidden; background:#05070A; border:1px solid var(--line);
+         box-shadow:0 30px 70px -40px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.03);}
+  .glass::after{content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg,rgba(7,9,12,.35) 0%,rgba(7,9,12,0) 22%,rgba(7,9,12,0) 70%,rgba(7,9,12,.55) 100%);}
+  .clip{display:block; width:100%; height:auto; max-width:100%; aspect-ratio:478/850; object-fit:cover; background:#05070A;}
+  .sound{position:absolute; inset-block-end:12px; inset-inline-start:12px; z-index:2; cursor:pointer;
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.06em; color:var(--ink);
+    background:rgba(7,9,12,.62); border:1px solid rgba(232,238,245,.22); border-radius:999px; padding:7px 13px;
+    backdrop-filter:blur(6px);}
+  .sound:hover{border-color:var(--brand); color:var(--brand);}
+  .sound:focus-visible{outline:2px solid var(--brand); outline-offset:2px;}
+  .device figcaption{font-size:13.5px; color:var(--muted); line-height:1.6;}
+  @media (min-width:900px){ .device{max-width:360px; margin-inline-start:auto;} }
+
+  /* full-bleed band: the same clip, as texture under one sentence */
+  .band{position:relative; min-height:clamp(230px,34vw,330px); overflow:hidden; border-block:1px solid var(--line); background:#05070A;}
+  .bandVid{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.5; filter:saturate(.75);}
+  .bandInk{position:relative; z-index:1; min-height:inherit; display:flex; align-items:center;
+    background:linear-gradient(90deg,rgba(7,9,12,.92) 0%,rgba(7,9,12,.72) 55%,rgba(7,9,12,.42) 100%);
+    padding-block:clamp(28px,5vw,54px);}
+  .bandInk p{font-family:var(--display); font-weight:500; font-size:clamp(17px,2.5vw,25px); line-height:1.5; color:var(--ink); max-width:34ch; margin-top:10px;}
+
+  /* ---------- genie: the fridge screen ---------- */
+  .screen{background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column;}
+  .screen .bezel{display:flex; align-items:center; gap:9px; padding:12px 15px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+  .voice{margin-inline-start:auto; display:flex; align-items:flex-end; gap:2px; height:14px;}
+  .voice i{display:block; width:3px; background:var(--brand); border-radius:2px; height:4px; animation:vb 1.1s ease-in-out infinite;}
+  .voice i:nth-child(2){animation-delay:.14s} .voice i:nth-child(3){animation-delay:.28s}
+  .voice i:nth-child(4){animation-delay:.42s} .voice i:nth-child(5){animation-delay:.56s}
+  @keyframes vb{0%,100%{height:4px;opacity:.5} 50%{height:14px;opacity:1}}
+  .chat{padding:16px 15px; display:flex; flex-direction:column; gap:11px; min-height:236px;}
+  .bub{max-width:88%; border-radius:14px; padding:11px 13px; font-size:14.5px; line-height:1.6;}
+  .bub.you{align-self:flex-start; background:var(--panel2); border:1px solid var(--line); color:var(--ink2); border-start-start-radius:5px;}
+  .bub.g{align-self:flex-end; background:var(--brand-soft); border:1px solid rgba(242,101,34,.3); color:var(--ink); border-start-end-radius:5px;}
+  .bub .who{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--muted); margin-bottom:5px;}
+  .caret{display:inline-block; width:7px; height:1.05em; background:var(--brand); vertical-align:-2px; margin-inline-start:2px; animation:bl .9s steps(1) infinite;}
+  @keyframes bl{0%,50%{opacity:1} 51%,100%{opacity:0}}
+
+  /* ---------- suppliers pipeline ---------- */
+  .pipe{display:grid; gap:10px; grid-template-columns:1fr;}
+  @media (min-width:720px){ .pipe{grid-template-columns:repeat(4,1fr);} }
+  .node{border:1px solid var(--line); background:var(--panel); border-radius:13px; padding:15px 14px; display:flex; flex-direction:column; gap:7px; transition:border-color .35s, background .35s;}
+  .node .who{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; color:var(--muted);}
+  .node .st{font-family:var(--display); font-weight:700; font-size:15px;}
+  .node p{font-size:13.5px; color:var(--ink2);}
+  .node.on{border-color:var(--brand); background:linear-gradient(180deg,rgba(242,101,34,.10),var(--panel));}
+  .node.on .who{color:var(--brand);}
+  .node.done{border-color:rgba(61,214,140,.35);}
+  .node.done .who{color:var(--signal);}
+  .inv{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden;}
+  .inv .ih{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:baseline; padding:13px 15px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+  .inv .ih b{color:var(--ink2); font-weight:500;}
+  .iline{display:grid; grid-template-columns:1fr auto auto; gap:14px; padding:11px 15px; border-bottom:1px solid var(--line); font-size:14px; align-items:center;}
+  .iline:last-of-type{border-bottom:0;}
+  .iline .q{font-family:var(--mono); color:var(--ink2);}
+  .iline .m{font-family:var(--mono); font-size:11px; border-radius:999px; padding:3px 8px; white-space:nowrap;}
+  .m.ok{color:var(--signal); border:1px solid rgba(61,214,140,.3);}
+  .m.gap{color:var(--warn); border:1px solid rgba(232,180,74,.35);}
+  .inv .foot{padding:12px 15px; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink2); display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+
+  /* ---------- people: referrers + trustee app ---------- */
+  .two{display:grid; gap:14px;}
+  @media (min-width:900px){ .two{grid-template-columns:1fr 1fr; align-items:start;} }
+  .app{background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
+  .app .ah{padding:14px 15px; border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:10px;}
+  .app .ah .t{font-family:var(--display); font-weight:700; font-size:15px;}
+  .app .ah .s{font-family:var(--mono); font-size:11px; color:var(--muted); margin-inline-start:auto;}
+  .bal{padding:16px 15px 4px; display:flex; align-items:baseline; gap:8px;}
+  .bal .v{font-family:var(--mono); font-size:32px; color:var(--brand); font-variant-numeric:tabular-nums;}
+  .bal .l{font-size:13px; color:var(--muted);}
+  .feed{padding:8px 15px 16px; display:flex; flex-direction:column;}
+  .fev{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .fev:last-child{border-bottom:0;}
+  .fev .w{font-family:var(--mono); font-size:11px; color:var(--muted);}
+  .fev .a{font-family:var(--mono); color:var(--signal); font-variant-numeric:tabular-nums;}
+  .fev .d{color:var(--ink2);}
+  .ring{display:flex; flex-wrap:wrap; gap:9px; padding:4px 15px 16px;}
+  .av{display:flex; align-items:center; gap:8px; border:1px solid var(--line2); border-radius:999px; padding:6px 12px 6px 6px; font-size:13.5px; color:var(--ink2);}
+  .av span{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; background:var(--brand-soft); color:var(--brand); font-family:var(--display); font-weight:700; font-size:12.5px;}
+  .av em{font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--signal); margin-inline-start:4px;}
+
+  /* ---------- systems strip ---------- */
+  .sys{display:grid; gap:12px;}
+  @media (min-width:700px){ .sys{grid-template-columns:repeat(2,1fr);} }
+  @media (min-width:1000px){ .sys{grid-template-columns:repeat(3,1fr);} }
+  .sysi{border:1px solid var(--line); border-radius:13px; padding:16px; background:var(--panel); display:flex; flex-direction:column; gap:6px;}
+  .sysi .n{font-family:var(--display); font-weight:700; font-size:15px;}
+  .sysi p{font-size:13.5px; color:var(--ink2);}
+  .sysi .tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; color:var(--muted);}
+
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="bar">
+    <div class="wrap">
+      <a class="logo" href="#top" aria-label="INSHOP"><img src="logo.png" alt="inShop"></a>
+      <nav>
+        <a href="#chain"><span class="t9n" data-he="שרשרת האות" data-en="The signal chain">שרשרת האות</span></a>
+        <a href="#genie"><span class="t9n" data-he="ג׳יני" data-en="Genie">ג׳יני</span></a>
+        <a href="#suppliers"><span class="t9n" data-he="ספקים" data-en="Suppliers">ספקים</span></a>
+        <a href="#guards"><span class="t9n" data-he="השומרים" data-en="The guards">השומרים</span></a>
+        <a href="#people"><span class="t9n" data-he="אנשים" data-en="People">אנשים</span></a>
+      </nav>
+      <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="wrap grid">
+      <div>
+        <div class="eyebrow"><span class="t9n" data-he="קמעונאות אוטונומית · חיישנים, ראייה והכרעה" data-en="Autonomous retail · sensing, vision, decision">קמעונאות אוטונומית · חיישנים, ראייה והכרעה</span></div>
+        <h1><span class="t9n" data-he="הקנייה נמדדת" data-en="A purchase is measured">הקנייה נמדדת</span> <span><span class="t9n" data-he="בגרמים" data-en="in grams">בגרמים</span></span><span class="t9n" data-he=", לא בסריקה." data-en=", not scanned.">, לא בסריקה.</span></h1>
+        <p class="lede"><span class="t9n" data-he="במקרר של INSHOP אין קופה, אין סורק ואין מי שמפקח. יש דלת שנפתחת, מדפים ששוקלים את עצמם, ומערכת שמסיקה מה נלקח — מההפרש במשקל בין רגע הפתיחה לרגע הסגירה." data-en="An INSHOP fridge has no checkout, no scanner and nobody watching. It has a door that opens, shelves that weigh themselves, and a system that infers what was taken from the difference in weight between the moment the door opened and the moment it closed.">במקרר של INSHOP אין קופה, אין סורק ואין מי שמפקח. יש דלת שנפתחת, מדפים ששוקלים את עצמם, ומערכת שמסיקה מה נלקח — מההפרש במשקל בין רגע הפתיחה לרגע הסגירה.</span></p>
+        <div class="heroCtas">
+          <a class="btn primary" href="#chain"><span class="t9n" data-he="איך זה עובד" data-en="How it works">איך זה עובד</span></a>
+          <a class="btn ghost" href="#guards"><span class="t9n" data-he="מה שומר על זה" data-en="What guards it">מה שומר על זה</span></a>
+        </div>
+      </div>
+
+      <figure class="device" aria-label="קנייה אחת במקרר, מצולמת בסניף">
+        <div class="glass">
+          <video id="clipHero" class="clip" src="clip.mp4" muted loop playsinline preload="metadata" aria-label="לקוח פותח את המקרר ולוקח מוצר"></video>
+          <button class="sound" id="soundBtn" type="button" aria-pressed="false"><span class="t9n" data-he="הפעלת קול" data-en="Sound on">הפעלת קול</span></button>
+        </div>
+        <figcaption><span class="t9n" data-he="קנייה אחת, מתחילתה ועד סופה — בלי קופה, בלי סורק, בלי מוכר." data-en="One purchase, start to finish — no checkout, no scanner, no clerk.">קנייה אחת, מתחילתה ועד סופה — בלי קופה, בלי סורק, בלי מוכר.</span></figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <div class="band">
+    <video id="clipBand" class="bandVid" src="clip.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+    <div class="bandInk">
+      <div class="wrap">
+        <div class="eyebrow"><span class="t9n" data-he="19 שניות" data-en="19 seconds">19 שניות</span></div>
+        <p><span class="t9n" data-he="כל מה שהלקוח עושה הוא לפתוח דלת ולקחת. כל השאר — זיהוי, שקילה, תרגום לגרמים, מבצע, חיוב וחשבונית — קורה בזמן הזה." data-en="All the customer does is open a door and take. Everything else — recognition, weighing, grams into products, the offer, the charge and the invoice — happens inside those seconds.">כל מה שהלקוח עושה הוא לפתוח דלת ולקחת. כל השאר — זיהוי, שקילה, תרגום לגרמים, מבצע, חיוב וחשבונית — קורה בזמן הזה.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <section id="chain">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow"><span class="t9n" data-he="שרשרת האות" data-en="The signal chain">שרשרת האות</span></div>
+        <h2><span class="t9n" data-he="ארבעה שלבים בין פתיחת דלת לחיוב" data-en="Four steps between a door opening and a charge">ארבעה שלבים בין פתיחת דלת לחיוב</span></h2>
+        <p class="lede"><span class="t9n" data-he="הסדר הזה הוא לא תרשים שיווקי — זו הדרך שבה האות באמת נע במערכת. כל שלב מייצר ראיה שהשלב הבא נשען עליה." data-en="This order is not a marketing diagram — it is how the signal actually moves. Each step produces the evidence the next one stands on.">הסדר הזה הוא לא תרשים שיווקי — זו הדרך שבה האות באמת נע במערכת. כל שלב מייצר ראיה שהשלב הבא נשען עליה.</span></p>
+      </div>
+      <div class="scope" style="margin-bottom:clamp(20px,3vw,30px)" aria-label="הדמיית משקל חי של תא במקרר">
+        <div class="head"><span class="dot" aria-hidden="true"></span> <span class="t9n" data-he="תא 3 · מדף 2 · משקל חי" data-en="Cell 3 · shelf 2 · live weight">תא 3 · מדף 2 · משקל חי</span></div>
+        <div class="weightNow"><span class="num" id="wNow">2,140</span><small><span class="t9n" data-he="גרם" data-en="grams">גרם</span></small></div>
+        <canvas id="scope" height="210" aria-hidden="true"></canvas>
+        <div class="readout">
+          <span class="t"><span class="t9n" data-he="אירוע" data-en="Event">אירוע</span></span><span class="v" id="ev"><span class="t9n" data-he="דלת נסגרה" data-en="Door closed">דלת נסגרה</span></span>
+          <span class="t"><span class="t9n" data-he="הפרש" data-en="Delta">הפרש</span></span><span class="v" id="df"><b><span class="t9n" data-he="−420 ג׳" data-en="−420 g">−420 ג׳</span></b> <span class="t9n" data-he="· שייק שוקולד ×1" data-en="· chocolate shake ×1">· שייק שוקולד ×1</span></span>
+          <span class="t"><span class="t9n" data-he="סל" data-en="Cart">סל</span></span><span class="v" id="ct"><span class="t9n" data-he="1 פריט · מוכן לחיוב" data-en="1 item · ready to charge">1 פריט · מוכן לחיוב</span></span>
+        </div>
+      </div>
+
+      <div class="chain">
+        <article class="step">
+          <div class="k"><span class="t9n" data-he="01 · זיהוי" data-en="01 · recognition">01 · זיהוי</span></div>
+          <h3><span class="t9n" data-he="הפנים פותחות את הדלת" data-en="A face opens the door">הפנים פותחות את הדלת</span></h3>
+          <p><span class="t9n" data-he="מצלמה בגובה הפנים מזהה את הלקוח לפני שהדלת נפתחת. אין זיהוי — אין פתיחה, ואין קנייה ללא אמצעי תשלום תקף." data-en="A camera at eye level recognises the customer before the door opens. No recognition, no opening — and no purchase without a valid means of payment.">מצלמה בגובה הפנים מזהה את הלקוח לפני שהדלת נפתחת. אין זיהוי — אין פתיחה, ואין קנייה ללא אמצעי תשלום תקף.</span></p>
+          <div class="unit"><span class="t9n" data-he="ההחלטה מתקבלת על המכונה עצמה" data-en="Decided on the unit itself">ההחלטה מתקבלת על המכונה עצמה</span></div>
+        </article>
+        <article class="step">
+          <div class="k"><span class="t9n" data-he="02 · מדידה" data-en="02 · measurement">02 · מדידה</span></div>
+          <h3><span class="t9n" data-he="כל תא שוקל את עצמו" data-en="Every cell weighs itself">כל תא שוקל את עצמו</span></h3>
+          <p><span class="t9n" data-he="תאי משקל מתחת לכל עמדה במדף נדגמים ברגע הפתיחה וברגע הסגירה. פתיחת הדלת היא יחידת האמת: מה שקרה בתוכה הוא הקנייה." data-en="Load cells under every shelf position are sampled the moment the door opens and again when it closes. The door opening is the unit of truth: whatever happened inside it is the purchase.">תאי משקל מתחת לכל עמדה במדף נדגמים ברגע הפתיחה וברגע הסגירה. פתיחת הדלת היא יחידת האמת: מה שקרה בתוכה הוא הקנייה.</span></p>
+          <div class="unit"><span class="t9n" data-he="רזולוציה: גרמים בודדים לתא" data-en="Resolution: single grams per cell">רזולוציה: גרמים בודדים לתא</span></div>
+        </article>
+        <article class="step">
+          <div class="k"><span class="t9n" data-he="03 · הכרעה" data-en="03 · inference">03 · הכרעה</span></div>
+          <h3><span class="t9n" data-he="מגרמים לסל" data-en="From grams to a cart">מגרמים לסל</span></h3>
+          <p><span class="t9n" data-he="המערכת מתרגמת הפרשי משקל ליחידות מוצר, מזהה החזרה למדף, מוצר שהונח בתא זר, ומחילה מבצעים אישיים לפני שהסכום נסגר." data-en="Weight differences become product units. The system recognises a put-back, an item left in the wrong cell, and applies personal offers before the total closes.">המערכת מתרגמת הפרשי משקל ליחידות מוצר, מזהה החזרה למדף, מוצר שהונח בתא זר, ומחילה מבצעים אישיים לפני שהסכום נסגר.</span></p>
+          <div class="unit"><span class="t9n" data-he="משקל ברוטו וטרה לכל מוצר בקטלוג" data-en="Gross and tare weight for every catalogue item">משקל ברוטו וטרה לכל מוצר בקטלוג</span></div>
+        </article>
+        <article class="step">
+          <div class="k"><span class="t9n" data-he="04 · אימות" data-en="04 · verification">04 · אימות</span></div>
+          <h3><span class="t9n" data-he="בדיקה לפני שגובים" data-en="Checked before anyone is charged">בדיקה לפני שגובים</span></h3>
+          <p><span class="t9n" data-he="כל עגלה עוברת שורת בדיקות אוטומטיות לפני החיוב, וסרטון הדלת נשמר. מקרה גבולי עובר לאדם עם ההקשר המלא — לא לניחוש." data-en="Every cart passes a row of automatic checks before it is charged, and the door video is kept. A borderline case goes to a person with the full context — never to a guess.">כל עגלה עוברת שורת בדיקות אוטומטיות לפני החיוב, וסרטון הדלת נשמר. מקרה גבולי עובר לאדם עם ההקשר המלא — לא לניחוש.</span></p>
+          <div class="unit"><span class="t9n" data-he="כסף זז רק בלחיצה של מנהל" data-en="Money moves only on a manager's click">כסף זז רק בלחיצה של מנהל</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="genie">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow"><span class="t9n" data-he="ג׳יני · היועצת שעל המקרר" data-en="Genie · the advisor on the fridge">ג׳יני · היועצת שעל המקרר</span></div>
+        <h2><span class="t9n" data-he="מוכרת שיודעת מה יש במדף, ומדברת" data-en="A shop assistant who knows the shelf, and speaks">מוכרת שיודעת מה יש במדף, ומדברת</span></h2>
+        <p class="lede" style="margin-top:14px"><span class="t9n" data-he="בחנות רגילה שואלים את המוכר. כאן שואלים את המסך — בקול או בנגיעה — וג׳יני עונה על מה שבאמת עומד מול העיניים: מה ההבדל בין שני הקריאטינים, כמה חלבון בשייק, מה מתאים אחרי אימון ערב." data-en="In an ordinary shop you ask the clerk. Here you ask the screen — by voice or by touch — and Genie answers about what is actually in front of you: the difference between the two creatines, the protein in a shake, what suits an evening workout.">בחנות רגילה שואלים את המוכר. כאן שואלים את המסך — בקול או בנגיעה — וג׳יני עונה על מה שבאמת עומד מול העיניים: מה ההבדל בין שני הקריאטינים, כמה חלבון בשייק, מה מתאים אחרי אימון ערב.</span></p>
+        <p class="lede" style="margin-top:14px"><span class="t9n" data-he="היא לא מקריאה קטלוג. היא רואה את המלאי של אותו מקרר, את המחירים של אותו רגע, ואת מה שהלקוח לקח בפעם שעברה — ולפעמים פותחת היא את השיחה." data-en="She is not reading a catalogue. She sees that fridge's stock, that moment's prices, and what this customer took last time — and sometimes she opens the conversation herself.">היא לא מקריאה קטלוג. היא רואה את המלאי של אותו מקרר, את המחירים של אותו רגע, ואת מה שהלקוח לקח בפעם שעברה — ולפעמים פותחת היא את השיחה.</span></p>
+        <div class="facts">
+          <div class="fact"><span class="n">→</span><span class="d"><span class="t9n" data-he="מדברת בקול אחד, נשי, בכל סניף — ולא בקול הרובוטי של הדפדפן." data-en="One voice across every branch — hers, not the browser's robotic one.">מדברת בקול אחד, נשי, בכל סניף — ולא בקול הרובוטי של הדפדפן.</span></span></div>
+          <div class="fact"><span class="n">→</span><span class="d"><span class="t9n" data-he="נגיעה בנושא אחר קוטעת אותה באמצע משפט, כמו שיחה אמיתית." data-en="A touch on another subject cuts her off mid-sentence, the way a real conversation works.">נגיעה בנושא אחר קוטעת אותה באמצע משפט, כמו שיחה אמיתית.</span></span></div>
+          <div class="fact"><span class="n">→</span><span class="d"><span class="t9n" data-he="לא רואה פרצופים ולא היסטוריית קניות מלאה — רק מה שדרוש לתשובה." data-en="She never sees faces or a full purchase history — only what the answer needs.">לא רואה פרצופים ולא היסטוריית קניות מלאה — רק מה שדרוש לתשובה.</span></span></div>
+        </div>
+      </div>
+
+      <div class="screen" aria-label="הדמיית שיחה על מסך המקרר">
+        <div class="bezel">
+          <span class="t9n" data-he="מסך המקרר · ג׳יני" data-en="Fridge screen · Genie">מסך המקרר · ג׳יני</span>
+          <span class="voice" id="voice" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+        <div class="chat" id="chat"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="suppliers">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow">INSHOP Suppliers</div>
+        <h2><span class="t9n" data-he="מחשבונית מצולמת עד יחידה במדף" data-en="From a photographed invoice to a unit on the shelf">מחשבונית מצולמת עד יחידה במדף</span></h2>
+        <p class="lede"><span class="t9n" data-he="סחורה נכנסת פעמיים בחודש, ובדרך כלל בלי שאיש מהמשרד נמצא שם. במקום טופס, יש שרשרת קצרה שבה כל צד עושה את מה שרק הוא יכול: הנהג מדווח, הנאמן סופר מול המדף, והמנהל מאשר — ורק אז המלאי זז." data-en="Goods arrive twice a month, usually with nobody from the office present. Instead of a form there is a short chain in which each side does only what it can: the driver reports, the trustee counts against the shelf, the manager approves — and only then does stock move.">סחורה נכנסת פעמיים בחודש, ובדרך כלל בלי שאיש מהמשרד נמצא שם. במקום טופס, יש שרשרת קצרה שבה כל צד עושה את מה שרק הוא יכול: הנהג מדווח, הנאמן סופר מול המדף, והמנהל מאשר — ורק אז המלאי זז.</span></p>
+      </div>
+
+      <div class="pipe" id="pipe">
+        <article class="node" data-i="0">
+          <div class="who"><span class="t9n" data-he="01 · נהג הספק" data-en="01 · supplier driver">01 · נהג הספק</span></div>
+          <div class="st"><span class="t9n" data-he="מדווח משלוח" data-en="Reports a delivery">מדווח משלוח</span></div>
+          <p><span class="t9n" data-he="מצלם את החשבונית בטלפון, בוחר סניף, ושולח. אין אפליקציה להתקין ואין סיסמה." data-en="Photographs the invoice, picks a branch, sends. No app to install, no password.">מצלם את החשבונית בטלפון, בוחר סניף, ושולח. אין אפליקציה להתקין ואין סיסמה.</span></p>
+        </article>
+        <article class="node" data-i="1">
+          <div class="who"><span class="t9n" data-he="02 · קריאה אוטומטית" data-en="02 · automatic reading">02 · קריאה אוטומטית</span></div>
+          <div class="st"><span class="t9n" data-he="החשבונית נקראת" data-en="The invoice is read">החשבונית נקראת</span></div>
+          <p><span class="t9n" data-he="שורות, כמויות וסכום נחלצים מהצילום ומותאמים לפריטים שהמערכת כבר מכירה מאותו ספק." data-en="Lines, quantities and totals are extracted from the photo and matched to items the system already knows from that supplier.">שורות, כמויות וסכום נחלצים מהצילום ומותאמים לפריטים שהמערכת כבר מכירה מאותו ספק.</span></p>
+        </article>
+        <article class="node" data-i="2">
+          <div class="who"><span class="t9n" data-he="03 · נאמן הסניף" data-en="03 · branch trustee">03 · נאמן הסניף</span></div>
+          <div class="st"><span class="t9n" data-he="סופר מול המדף" data-en="Counts against the shelf">סופר מול המדף</span></div>
+          <p><span class="t9n" data-he="עובר פריט־פריט מול מה שהגיע בפועל. חוסר או עודף נרשם כפי שהוא, לא כפי שכתוב בנייר." data-en="Goes item by item against what actually arrived. A shortage or a surplus is recorded as it is, not as the paper says.">עובר פריט־פריט מול מה שהגיע בפועל. חוסר או עודף נרשם כפי שהוא, לא כפי שכתוב בנייר.</span></p>
+        </article>
+        <article class="node" data-i="3">
+          <div class="who"><span class="t9n" data-he="04 · מנהל" data-en="04 · manager">04 · מנהל</span></div>
+          <div class="st"><span class="t9n" data-he="מאשר כניסה למלאי" data-en="Approves it into stock">מאשר כניסה למלאי</span></div>
+          <p><span class="t9n" data-he="רואה את הצילום, את הספירה ואת הפער — ומאשר. רק הלחיצה הזאת מזיזה מלאי וכסף." data-en="Sees the photo, the count and the gap — and approves. Only that click moves stock and money.">רואה את הצילום, את הספירה ואת הפער — ומאשר. רק הלחיצה הזאת מזיזה מלאי וכסף.</span></p>
+        </article>
+      </div>
+
+      <div class="inv">
+        <div class="ih">
+          <b><span class="t9n" data-he="החברה המרכזית למשקאות" data-en="Central Bottling Company">החברה המרכזית למשקאות</span></b> <span class="t9n" data-he="· חשבונית" data-en="· invoice">· חשבונית</span> <span class="num">3042233234</span> <span class="t9n" data-he="· סניף יקנעם ·" data-en="· Yokneam branch ·">· סניף יקנעם ·</span> <b>₪1,544</b>
+          <span style="margin-inline-start:auto"><span class="t9n" data-he="נקראה אוטומטית · ממתינה לאישור" data-en="Read automatically · awaiting approval">נקראה אוטומטית · ממתינה לאישור</span></span>
+        </div>
+        <div class="iline"><span><span class="t9n" data-he="שייק שוקולד 330 מ״ל" data-en="Chocolate shake 330 ml">שייק שוקולד 330 מ״ל</span></span><span class="q num">24 / 24</span><span class="m ok"><span class="t9n" data-he="תואם" data-en="matches">תואם</span></span></div>
+        <div class="iline"><span><span class="t9n" data-he="שייק וניל 330 מ״ל" data-en="Vanilla shake 330 ml">שייק וניל 330 מ״ל</span></span><span class="q num">18 / 24</span><span class="m gap"><span class="t9n" data-he="חסרים 6" data-en="6 missing">חסרים 6</span></span></div>
+        <div class="iline"><span><span class="t9n" data-he="מים מינרלים 500 מ״ל" data-en="Mineral water 500 ml">מים מינרלים 500 מ״ל</span></span><span class="q num">48 / 48</span><span class="m ok"><span class="t9n" data-he="תואם" data-en="matches">תואם</span></span></div>
+        <div class="foot">
+          <span><span class="t9n" data-he="חוסר לא נעלם: הוא הופך לבקשת זיכוי מהספק, מחוברת לאותה חשבונית." data-en="A shortage does not evaporate: it becomes a credit request to the supplier, attached to that same invoice.">חוסר לא נעלם: הוא הופך לבקשת זיכוי מהספק, מחוברת לאותה חשבונית.</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="guards">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow"><span class="t9n" data-he="השומרים" data-en="The guards">השומרים</span></div>
+        <h2><span class="t9n" data-he="תוכנות שלא ישנות" data-en="Software that never sleeps">תוכנות שלא ישנות</span></h2>
+        <p class="lede"><span class="t9n" data-he="מערכת שגובה כסף בלי מוכר חייבת לבדוק את עצמה. לכל שומר תחום אחריות אחד, קצב קבוע, וסמכות מוגבלת: לתקן מה שבטוח, ולהתריע על כל השאר." data-en="A system that charges money with no clerk has to check itself. Each guard owns one subject, runs on a fixed cadence, and holds limited authority: fix what is safe, raise everything else.">מערכת שגובה כסף בלי מוכר חייבת לבדוק את עצמה. לכל שומר תחום אחריות אחד, קצב קבוע, וסמכות מוגבלת: לתקן מה שבטוח, ולהתריע על כל השאר.</span></p>
+      </div>
+      <div class="guards">
+        <article class="guard">
+          <div class="top"><span class="name"><span class="t9n" data-he="שומר המבצעים" data-en="Offer guard">שומר המבצעים</span></span><span class="cad"><span class="t9n" data-he="כל דקה" data-en="every minute">כל דקה</span></span></div>
+          <p><span class="t9n" data-he="סורק עגלות פתוחות לפני סליקה ומוודא שההטבה שהובטחה על המסך היא זו שתיגבה בפועל." data-en="Scans open carts before settlement and makes sure the benefit promised on screen is the one actually charged.">סורק עגלות פתוחות לפני סליקה ומוודא שההטבה שהובטחה על המסך היא זו שתיגבה בפועל.</span></p>
+        </article>
+        <article class="guard">
+          <div class="top"><span class="name"><span class="t9n" data-he="שומר המחיר" data-en="Price guard">שומר המחיר</span></span><span class="cad"><span class="t9n" data-he="כל דקה" data-en="every minute">כל דקה</span></span></div>
+          <p><span class="t9n" data-he="משווה את מה שהוצג ללקוח למה שהמערכת עומדת לחייב. פער — והעגלה נעצרת לבדיקה." data-en="Compares what the customer was shown with what is about to be charged. A gap stops the cart for review.">משווה את מה שהוצג ללקוח למה שהמערכת עומדת לחייב. פער — והעגלה נעצרת לבדיקה.</span></p>
+        </article>
+        <article class="guard">
+          <div class="top"><span class="name"><span class="t9n" data-he="שומר הסליקה" data-en="Settlement guard">שומר הסליקה</span></span><span class="cad"><span class="t9n" data-he="כל 5 דקות" data-en="every 5 minutes">כל 5 דקות</span></span></div>
+          <p><span class="t9n" data-he="רשת ביטחון אחרונה: עובר על עגלות שכבר נסגרו ומחפש דליפה שאף שומר אחר לא תפס." data-en="The last safety net: reviews carts already closed, looking for a leak no other guard caught.">רשת ביטחון אחרונה: עובר על עגלות שכבר נסגרו ומחפש דליפה שאף שומר אחר לא תפס.</span></p>
+        </article>
+        <article class="guard">
+          <div class="top"><span class="name"><span class="t9n" data-he="שומר התפעול" data-en="Ops guard">שומר התפעול</span></span><span class="cad"><span class="t9n" data-he="כל 15 דקות" data-en="every 15 minutes">כל 15 דקות</span></span></div>
+          <p><span class="t9n" data-he="לומד את הקצב הרגיל של כל סניף שבעה ימים אחורה, ומתריע כשסניף נדם או כששגיאות מתחילות להצטבר." data-en="Learns each branch's normal rhythm over seven days and raises an alert when a branch goes dark or errors start to stack up.">לומד את הקצב הרגיל של כל סניף שבעה ימים אחורה, ומתריע כשסניף נדם או כששגיאות מתחילות להצטבר.</span></p>
+        </article>
+        <article class="guard">
+          <div class="top"><span class="name"><span class="t9n" data-he="שומר החיישנים" data-en="Sensor guard">שומר החיישנים</span></span><span class="cad"><span class="t9n" data-he="יומי" data-en="daily">יומי</span></span></div>
+          <p><span class="t9n" data-he="מאתר תא שמשקלו קפא בזמן שהמוצר שבו נמכר — סימן מובהק לחיישן מת, ומכאן למכירות שהתפספסו." data-en="Finds a cell whose weight froze while its product kept selling — the signature of a dead sensor, and of sales quietly missed.">מאתר תא שמשקלו קפא בזמן שהמוצר שבו נמכר — סימן מובהק לחיישן מת, ומכאן למכירות שהתפספסו.</span></p>
+        </article>
+        <article class="guard">
+          <div class="top"><span class="name"><span class="t9n" data-he="שומר המצלמה" data-en="Camera guard">שומר המצלמה</span></span><span class="cad"><span class="t9n" data-he="בזמן אמת" data-en="real time">בזמן אמת</span></span></div>
+          <p><span class="t9n" data-he="מצלמה שהתעוורה מטופלת בשלבים: פתיחה מחדש, אתחול חיבור, ורק כשהמקרר פנוי — הפעלה מחדש." data-en="A blinded camera is handled in stages: reopen, restart the connection, and only when the fridge is idle — reboot.">מצלמה שהתעוורה מטופלת בשלבים: פתיחה מחדש, אתחול חיבור, ורק כשהמקרר פנוי — הפעלה מחדש.</span></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="ledger">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow"><span class="t9n" data-he="ספר המלאי" data-en="The inventory ledger">ספר המלאי</span></div>
+        <h2><span class="t9n" data-he="כל יחידה, כל תנועה, שורה אחת" data-en="Every unit, every movement, one line">כל יחידה, כל תנועה, שורה אחת</span></h2>
+        <p class="lede" style="margin-top:14px"><span class="t9n" data-he="אין &quot;יתרה&quot; שמישהו מקליד. המלאי הוא סכום התנועות: קליטה מהספק, העברה מהמזווה למקרר, לקיחה, החזרה, ספירה. כל שורה יודעת מי יצר אותה ומתי — ולכן אפשר תמיד לחזור אחורה ולהסביר מספר." data-en="There is no &quot;balance&quot; that someone types in. Stock is the sum of its movements: received from a supplier, moved from the pantry to the fridge, taken, put back, counted. Every line knows who created it and when — so any number can be traced back and explained.">אין "יתרה" שמישהו מקליד. המלאי הוא סכום התנועות: קליטה מהספק, העברה מהמזווה למקרר, לקיחה, החזרה, ספירה. כל שורה יודעת מי יצר אותה ומתי — ולכן אפשר תמיד לחזור אחורה ולהסביר מספר.</span></p>
+        <div class="facts">
+          <div class="fact"><span class="n">→</span><span class="d"><span class="t9n" data-he="פער בין הספר לבין המשקל בפועל מצביע על תקלה, לא נסגר בשקט." data-en="A gap between the ledger and the actual weight points at a fault; it is never quietly closed.">פער בין הספר לבין המשקל בפועל מצביע על תקלה, לא נסגר בשקט.</span></span></div>
+          <div class="fact"><span class="n">→</span><span class="d"><span class="t9n" data-he="חשבונית ספק נקלטת מצילום, נקראת אוטומטית ומחכה לאישור אדם." data-en="A supplier invoice enters as a photo, is read automatically, and waits for a person to approve it.">חשבונית ספק נקלטת מצילום, נקראת אוטומטית ומחכה לאישור אדם.</span></span></div>
+          <div class="fact"><span class="n">→</span><span class="d"><span class="t9n" data-he="זיכוי ללקוח נסגר רק בהחלטה של מנהל. אף אוטומציה לא מזיזה כסף לבד." data-en="A customer credit closes only on a manager's decision. No automation moves money by itself.">זיכוי ללקוח נסגר רק בהחלטה של מנהל. אף אוטומציה לא מזיזה כסף לבד.</span></span></div>
+        </div>
+      </div>
+      <div class="figure">
+        <div class="eyebrow" style="margin-bottom:10px"><span class="t9n" data-he="תנועות · מוצר 13423 · סניף יקנעם" data-en="Movements · item 13423 · Yokneam">תנועות · מוצר 13423 · סניף יקנעם</span></div>
+        <div class="ledger">
+          <div class="lrow"><span class="when">08:14</span><span><span class="t9n" data-he="קליטה מהספק · חשבונית 3042233" data-en="Received from supplier · invoice 3042233">קליטה מהספק · חשבונית 3042233</span></span><span class="qty plus num">+24</span></div>
+          <div class="lrow"><span class="when">08:31</span><span><span class="t9n" data-he="מהמזווה למקרר · נאמן הסניף" data-en="Pantry to fridge · branch trustee">מהמזווה למקרר · נאמן הסניף</span></span><span class="qty plus num">+12</span></div>
+          <div class="lrow"><span class="when">11:02</span><span><span class="t9n" data-he="לקיחה · פתיחת דלת #4471" data-en="Taken · door opening #4471">לקיחה · פתיחת דלת #4471</span></span><span class="qty minus num">−1</span></div>
+          <div class="lrow"><span class="when">11:03</span><span><span class="t9n" data-he="החזרה למדף · אותה פתיחה" data-en="Put back · same opening">החזרה למדף · אותה פתיחה</span></span><span class="qty plus num">+1</span></div>
+          <div class="lrow"><span class="when">17:49</span><span><span class="t9n" data-he="לקיחה · פתיחת דלת #4508" data-en="Taken · door opening #4508">לקיחה · פתיחת דלת #4508</span></span><span class="qty minus num">−2</span></div>
+          <div class="lrow"><span class="when">23:00</span><span><span class="t9n" data-he="ספירה אוטומטית · תואם" data-en="Automatic count · matches">ספירה אוטומטית · תואם</span></span><span class="qty num muted">34</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="people">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow"><span class="t9n" data-he="השכבה האנושית" data-en="The human layer">השכבה האנושית</span></div>
+        <h2><span class="t9n" data-he="שני אנשים מחזיקים כל סניף" data-en="Two people hold up every branch">שני אנשים מחזיקים כל סניף</span></h2>
+        <p class="lede"><span class="t9n" data-he="המקרר אוטונומי, החנות לא. נאמן אחד דואג שיהיה מה לקנות, וממליצים מביאים את מי שיקנה. שניהם מתאמנים במקום, שניהם מרוויחים אחוז ממה שהם באמת יצרו, ושניהם רואים את זה באפליקציה באותו רגע — לא בתלוש בסוף החודש." data-en="The fridge is autonomous; the shop is not. One trustee keeps something worth buying on the shelf, and referrers bring the people who buy it. Both train there, both earn a percentage of what they actually created, and both see it in the app the same second — not on a payslip at the end of the month.">המקרר אוטונומי, החנות לא. נאמן אחד דואג שיהיה מה לקנות, וממליצים מביאים את מי שיקנה. שניהם מתאמנים במקום, שניהם מרוויחים אחוז ממה שהם באמת יצרו, ושניהם רואים את זה באפליקציה באותו רגע — לא בתלוש בסוף החודש.</span></p>
+      </div>
+
+      <div class="two">
+        <div class="app" aria-label="הדמיית אפליקציית הנאמן">
+          <div class="ah"><span class="t"><span class="t9n" data-he="נאמן הסניף" data-en="Branch trustee">נאמן הסניף</span></span><span class="s"><span class="t9n" data-he="אפליקציה · יקנעם" data-en="App · Yokneam">אפליקציה · יקנעם</span></span></div>
+          <div class="bal"><span class="v num" id="tbal">₪0</span><span class="l"><span class="t9n" data-he="נצבר החודש" data-en="earned this month">נצבר החודש</span></span></div>
+          <div class="feed" id="tfeed"></div>
+          <div class="pay" style="padding:0 15px 16px">
+            <span class="chip"><b>2%</b> <span class="t9n" data-he="משווי המילוי" data-en="of what they shelve">משווי המילוי</span></span>
+            <span class="chip"><b>2%</b> <span class="t9n" data-he="משווי הקליטה" data-en="of what they receive">משווי הקליטה</span></span>
+          </div>
+        </div>
+
+        <div class="app" aria-label="הדמיית מועדון הממליצים">
+          <div class="ah"><span class="t"><span class="t9n" data-he="מועדון הממליצים" data-en="Referrers' club">מועדון הממליצים</span></span><span class="s"><span class="t9n" data-he="קישור אישי" data-en="Personal link">קישור אישי</span></span></div>
+          <div class="bal"><span class="v num">₪186</span><span class="l"><span class="t9n" data-he="קרדיט לקניות במקרר" data-en="credit to spend in the fridge">קרדיט לקניות במקרר</span></span></div>
+          <div class="ring">
+            <span class="av"><span><span class="t9n" data-he="ד" data-en="D">ד</span></span><span class="t9n" data-he="דניאל נרשם" data-en="Daniel signed up">דניאל נרשם</span><em>+₪25</em></span>
+            <span class="av"><span><span class="t9n" data-he="מ" data-en="M">מ</span></span><span class="t9n" data-he="מאיה נרשמה" data-en="Maya signed up">מאיה נרשמה</span><em>+₪25</em></span>
+            <span class="av"><span><span class="t9n" data-he="ע" data-en="O">ע</span></span><span class="t9n" data-he="עומר נרשם" data-en="Omer signed up">עומר נרשם</span><em>+₪25</em></span>
+            <span class="av"><span><span class="t9n" data-he="ר" data-en="R">ר</span></span><span class="t9n" data-he="רותם — הוזמן" data-en="Rotem — invited">רותם — הוזמן</span></span>
+          </div>
+          <div class="feed" style="padding-top:0">
+            <div class="fev"><span class="w"><span class="t9n" data-he="אתמול" data-en="yesterday">אתמול</span></span><span class="d"><span class="t9n" data-he="קנייה במקרר · שולם מהקרדיט" data-en="Purchase · paid from credit">קנייה במקרר · שולם מהקרדיט</span></span><span class="a num">−₪18</span></div>
+            <div class="fev"><span class="w"><span class="t9n" data-he="לפני 3 ימים" data-en="3 days ago">לפני 3 ימים</span></span><span class="d"><span class="t9n" data-he="חבר שנרשם דרך הקישור" data-en="A friend signed up through the link">חבר שנרשם דרך הקישור</span></span><span class="a num">+₪25</span></div>
+          </div>
+          <p class="muted" style="font-size:13px; padding:0 15px 16px"><span class="t9n" data-he="קרדיט ממליצים וקרדיט נאמנות יושבים באותו ארנק אחד. אין שני מאזנים ואין שתי מערכות שצריך להתאים ביניהן." data-en="Referral credit and trustee credit sit in the same single wallet. No two balances, no two systems to reconcile.">קרדיט ממליצים וקרדיט נאמנות יושבים באותו ארנק אחד. אין שני מאזנים ואין שתי מערכות שצריך להתאים ביניהן.</span></p>
+        </div>
+      </div>
+
+      <div class="split" style="margin-top:clamp(26px,4vw,44px)">
+        <div>
+          <h3 style="font-size:20px;margin-bottom:10px"><span class="t9n" data-he="איפה האוטומציה עוצרת" data-en="Where the automation stops">איפה האוטומציה עוצרת</span></h3>
+          <p class="lede"><span class="t9n" data-he="קל לבנות מערכת שמחליטה הכל לבד. קשה יותר להחליט איפה היא מפסיקה. הגבול אצלנו ברור: המערכת מודדת, מסיקה, מתריעה ומציעה — אדם מאשר כל מה שנוגע בכסף של לקוח." data-en="It is easy to build a system that decides everything on its own. It is harder to decide where it stops. Our line is explicit: the system measures, infers, alerts and proposes — a person approves anything that touches a customer's money.">קל לבנות מערכת שמחליטה הכל לבד. קשה יותר להחליט איפה היא מפסיקה. הגבול אצלנו ברור: המערכת מודדת, מסיקה, מתריעה ומציעה — אדם מאשר כל מה שנוגע בכסף של לקוח.</span></p>
+        </div>
+        <div>
+          <h3 style="font-size:20px;margin-bottom:10px"><span class="t9n" data-he="ולמה זה דווקא מאפשר יותר" data-en="And why that allows more, not less">ולמה זה דווקא מאפשר יותר</span></h3>
+          <p class="lede"><span class="t9n" data-he="כשההכרעות הרגישות עוברות דרך אדם, אפשר לתת לאוטומציה את כל מה שמסביב — ולתת לה לעשות אותו כל דקה, בכל סניף, בלי להתעייף ובלי לשכוח." data-en="Once the sensitive calls go through a person, everything around them can be handed to automation — and it can run every minute, in every branch, without tiring and without forgetting.">כשההכרעות הרגישות עוברות דרך אדם, אפשר לתת לאוטומציה את כל מה שמסביב — ולתת לה לעשות אותו כל דקה, בכל סניף, בלי להתעייף ובלי לשכוח.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="systems">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow"><span class="t9n" data-he="שאר המערכת" data-en="The rest of the system">שאר המערכת</span></div>
+        <h2><span class="t9n" data-he="מה עוד רץ מאחורי הדלת" data-en="What else runs behind the door">מה עוד רץ מאחורי הדלת</span></h2>
+        <p class="lede"><span class="t9n" data-he="לא כל חלק זוכה למסך משלו. אלה הדברים שמחזיקים את היומיום, ורובם עובדים בלי שאיש שם לב אליהם." data-en="Not every part gets a screen of its own. These hold up the everyday, and most of them work without anyone noticing.">לא כל חלק זוכה למסך משלו. אלה הדברים שמחזיקים את היומיום, ורובם עובדים בלי שאיש שם לב אליהם.</span></p>
+      </div>
+      <div class="sys">
+        <article class="sysi"><div class="tag"><span class="t9n" data-he="הטבות" data-en="Offers">הטבות</span></div><div class="n"><span class="t9n" data-he="מבצע אישי לכל לקוח" data-en="A personal offer per customer">מבצע אישי לכל לקוח</span></div><p><span class="t9n" data-he="הצעה שנבנית ממה שהלקוח באמת קונה, מוצגת על המסך לפני הפתיחה ונגבית בדיוק כפי שהוצגה." data-en="Built from what this customer actually buys, shown on the screen before the door opens, and charged exactly as shown.">הצעה שנבנית ממה שהלקוח באמת קונה, מוצגת על המסך לפני הפתיחה ונגבית בדיוק כפי שהוצגה.</span></p></article>
+        <article class="sysi"><div class="tag"><span class="t9n" data-he="זיהוי" data-en="Recognition">זיהוי</span></div><div class="n"><span class="t9n" data-he="ברכה בשם" data-en="Greeted by name">ברכה בשם</span></div><p><span class="t9n" data-he="מי שהמערכת מזהה נפגש בברכה לפי שעה ובשם שלו, בקול אחד שמלווה את כל מה שהמקרר אומר." data-en="A recognised customer is met by the hour's greeting and their own name, in the single voice that carries everything the fridge says.">מי שהמערכת מזהה נפגש בברכה לפי שעה ובשם שלו, בקול אחד שמלווה את כל מה שהמקרר אומר.</span></p></article>
+        <article class="sysi"><div class="tag"><span class="t9n" data-he="שירות" data-en="Service">שירות</span></div><div class="n"><span class="t9n" data-he="מרכז ההודעות" data-en="Message centre">מרכז ההודעות</span></div><p><span class="t9n" data-he="לקוח שכותב מקבל תשובה שמבוססת על מצב החשבון שלו באותו רגע, ובקשה שנוגעת בכסף עולה לאישור אדם בלחיצה אחת." data-en="A customer who writes gets an answer based on the actual state of their account, and any request that touches money goes to a person as a one-click approval.">לקוח שכותב מקבל תשובה שמבוססת על מצב החשבון שלו באותו רגע, ובקשה שנוגעת בכסף עולה לאישור אדם בלחיצה אחת.</span></p></article>
+        <article class="sysi"><div class="tag"><span class="t9n" data-he="ניהול" data-en="Management">ניהול</span></div><div class="n"><span class="t9n" data-he="תקינות סניפים" data-en="Branch health">תקינות סניפים</span></div><p><span class="t9n" data-he="מסך אחד למנהל: מה דורש טיפול היום בכל סניף, מה נמכר ולא הושלם, ואיזו תעודה מחכה לאישור." data-en="One screen for a manager: what needs attention today in each branch, what sold and was never restocked, and which document is waiting for approval.">מסך אחד למנהל: מה דורש טיפול היום בכל סניף, מה נמכר ולא הושלם, ואיזו תעודה מחכה לאישור.</span></p></article>
+        <article class="sysi"><div class="tag"><span class="t9n" data-he="וידאו" data-en="Video">וידאו</span></div><div class="n"><span class="t9n" data-he="ביקורת על מקרה גבולי" data-en="Review of a borderline case">ביקורת על מקרה גבולי</span></div><p><span class="t9n" data-he="סרטון הדלת נשמר ונבדק מול המשקל. כך מכירה שהתפספסה בגלל תא מת חוזרת להיות ניתנת להוכחה." data-en="The door video is kept and checked against the weight, so a sale missed because of a dead cell becomes provable again.">סרטון הדלת נשמר ונבדק מול המשקל. כך מכירה שהתפספסה בגלל תא מת חוזרת להיות ניתנת להוכחה.</span></p></article>
+        <article class="sysi"><div class="tag"><span class="t9n" data-he="חומרה" data-en="Hardware">חומרה</span></div><div class="n"><span class="t9n" data-he="מקרר שמתקן את עצמו" data-en="A fridge that repairs itself">מקרר שמתקן את עצמו</span></div><p><span class="t9n" data-he="דפדפן שקרס עולה מחדש, מצלמה שהתעוורה מטופלת בשלבים, ועדכון גרסה נכנס כשהמקרר פנוי." data-en="A crashed browser comes back up, a blinded camera is handled in stages, and a version update lands only while the fridge is idle.">דפדפן שקרס עולה מחדש, מצלמה שהתעוורה מטופלת בשלבים, ועדכון גרסה נכנס כשהמקרר פנוי.</span></p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="words">
+    <div class="wrap">
+      <div class="shead">
+        <div class="eyebrow"><span class="t9n" data-he="אוצר מילים" data-en="Vocabulary">אוצר מילים</span></div>
+        <h2><span class="t9n" data-he="המונחים שהמערכת חושבת בהם" data-en="The terms the system thinks in">המונחים שהמערכת חושבת בהם</span></h2>
+      </div>
+      <dl class="gloss">
+        <div class="gitem"><dt><span class="t9n" data-he="פתיחת דלת" data-en="Door opening">פתיחת דלת</span></dt><dd><span class="t9n" data-he="יחידת האמת. כל מה שקרה בין פתיחה לסגירה שייך ללקוח אחד, וכל חישוב מתחיל מחדש בפתיחה הבאה." data-en="The unit of truth. Everything between open and close belongs to one customer, and every calculation starts fresh at the next opening.">יחידת האמת. כל מה שקרה בין פתיחה לסגירה שייך ללקוח אחד, וכל חישוב מתחיל מחדש בפתיחה הבאה.</span></dd></div>
+        <div class="gitem"><dt><span class="t9n" data-he="תא" data-en="Cell">תא</span></dt><dd><span class="t9n" data-he="עמדה במדף עם חיישן משקל משלה. מוצר אחד לתא, כדי שהפרש משקל יתורגם ליחידות בלי ניחוש." data-en="A shelf position with its own load sensor. One product per cell, so a weight difference converts to units without guessing.">עמדה במדף עם חיישן משקל משלה. מוצר אחד לתא, כדי שהפרש משקל יתורגם ליחידות בלי ניחוש.</span></dd></div>
+        <div class="gitem"><dt><span class="t9n" data-he="טרה" data-en="Tare">טרה</span></dt><dd><span class="t9n" data-he="משקל האריזה הריקה. בלעדיו אי אפשר לדעת אם ירדו 400 גרם של מוצר או 400 גרם של מישהו שנשען על המדף." data-en="The weight of the empty packaging. Without it there is no telling 400 grams of product from 400 grams of someone leaning on the shelf.">משקל האריזה הריקה. בלעדיו אי אפשר לדעת אם ירדו 400 גרם של מוצר או 400 גרם של מישהו שנשען על המדף.</span></dd></div>
+        <div class="gitem"><dt><span class="t9n" data-he="מזווה" data-en="Pantry">מזווה</span></dt><dd><span class="t9n" data-he="המלאי שמחוץ למקרר, בסניף. ממנו מגיע המילוי היומי, ואליו נקלטת הסחורה מהספק." data-en="The stock outside the fridge, in the branch. The daily refill comes from it, and supplier deliveries go into it.">המלאי שמחוץ למקרר, בסניף. ממנו מגיע המילוי היומי, ואליו נקלטת הסחורה מהספק.</span></dd></div>
+        <div class="gitem"><dt><span class="t9n" data-he="משקל זר" data-en="Foreign weight">משקל זר</span></dt><dd><span class="t9n" data-he="משקל שהופיע בתא ולא שייך למוצר שלו. נרשם כהנחה, לא כקנייה — ומסומן לבדיקה." data-en="Weight that appeared in a cell and does not belong to its product. Recorded as a placement, never as a purchase — and flagged for review.">משקל שהופיע בתא ולא שייך למוצר שלו. נרשם כהנחה, לא כקנייה — ומסומן לבדיקה.</span></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="close">
+        <div class="eyebrow">INSHOP</div>
+        <h2><span class="t9n" data-he="חנות שלמה בגודל של מקרר אחד" data-en="A whole shop the size of one fridge">חנות שלמה בגודל של מקרר אחד</span></h2>
+        <p class="lede"><span class="t9n" data-he="פועלת מסביב לשעון בחדרי כושר, בלי צוות במקום, ומודדת את עצמה כל הזמן. אם יש לכם מקום שבו אנשים חוזרים כל יום — יש שם חנות." data-en="It runs around the clock inside gyms, with no staff on site, measuring itself the whole time. If you have a place people come back to every day, there is a shop in it.">פועלת מסביב לשעון בחדרי כושר, בלי צוות במקום, ומודדת את עצמה כל הזמן. אם יש לכם מקום שבו אנשים חוזרים כל יום — יש שם חנות.</span></p>
+        <div class="heroCtas" style="margin-top:6px">
+          <a class="btn primary" href="#chain"><span class="t9n" data-he="לראות איך זה עובד" data-en="See how it works">לראות איך זה עובד</span></a>
+          <a class="btn ghost" href="#guards"><span class="t9n" data-he="לראות מה שומר על זה" data-en="See what guards it">לראות מה שומר על זה</span></a>
+        </div>
+        <div class="contact">
+          <span class="t9n" data-he="לפניות, שיתופי פעולה והתקנה בסניף שלכם:" data-en="For enquiries, partnerships and an installation at your site:">לפניות, שיתופי פעולה והתקנה בסניף שלכם:</span>
+          <a class="mail" href="mailto:erez@cyb-org.com?subject=INSHOP">erez@cyb-org.com</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span class="logo sm"><img src="logo.png" alt="inShop"></span>
+      <a class="mail sm" href="mailto:erez@cyb-org.com?subject=INSHOP">erez@cyb-org.com</a>
+      <span class="muted"><span class="t9n" data-he="קמעונאות אוטונומית · ישראל" data-en="Autonomous retail · Israel">קמעונאות אוטונומית · ישראל</span></span>
+      <span class="muted num" style="margin-inline-start:auto"><span class="t9n" data-he="גרם אחד זה ההבדל בין קנייה לבין שום דבר" data-en="One gram is the difference between a purchase and nothing at all">גרם אחד זה ההבדל בין קנייה לבין שום דבר</span></span>
+    </div>
+  </footer>
+</div>
+
+<script id="clipdata" type="text/plain"></script>
+<script>
+/* ---------- one switch turns the whole page over ---------- */
+(function () {
+  var page = document.querySelector('.page'), btn = document.getElementById('lang');
+  if (!page || !btn) { return; }
+  var lang = 'he', listeners = [];
+  try { lang = localStorage.getItem('inshop_lang') === 'en' ? 'en' : 'he'; } catch (e) { /* private window */ }
+  window.__lang = function () { return lang; };
+  window.__onLang = function (fn) { listeners.push(fn); };
+  function apply(l) {
+    lang = l;
+    page.setAttribute('dir', l === 'en' ? 'ltr' : 'rtl');
+    page.setAttribute('lang', l);
+    Array.prototype.forEach.call(document.querySelectorAll('.t9n'), function (el) {
+      var v = el.getAttribute(l === 'en' ? 'data-en' : 'data-he');
+      if (v != null) { el.textContent = v; }
+    });
+    btn.textContent = l === 'en' ? 'עברית' : 'EN';
+    try { localStorage.setItem('inshop_lang', l); } catch (e) { /* nothing to remember with */ }
+    listeners.forEach(function (fn) { try { fn(l); } catch (e) { /* a demo failing must not break the switch */ } });
+  }
+  btn.addEventListener('click', function () { apply(lang === 'en' ? 'he' : 'en'); });
+  apply(lang);
+})();
+
+/* ---------- the clip, decoded once and shared by both players ---------- */
+(function () {
+  var holder = document.getElementById('clipdata');
+  var hero = document.getElementById('clipHero'), band = document.getElementById('clipBand');
+  if (!holder || !hero) { return; }
+  var b64 = (holder.textContent || '').trim();
+  holder.textContent = '';                       // let the 3MB string go once it is a blob
+  try {
+    // Hosted build: the clip is a file next to the page and the src is already set in the markup.
+    // Artifact build: the clip travels inside the page, because that sandbox blocks outside media.
+    if (b64) {
+      var bin = atob(b64), len = bin.length, bytes = new Uint8Array(len);
+      for (var i = 0; i < len; i++) { bytes[i] = bin.charCodeAt(i); }
+      var url = URL.createObjectURL(new Blob([bytes], { type: 'video/mp4' }));
+      [hero, band].forEach(function (v) { if (v) { v.src = url; } });
+    }
+    [hero, band].forEach(function (v) {
+      if (!v) { return; }
+      var p = v.play();
+      if (p && p.catch) { p.catch(function () { v.controls = true; }); }   // blocked autoplay: give controls
+    });
+  } catch (e) {
+    hero.closest('.glass').style.display = 'none';
+  }
+
+  var btn = document.getElementById('soundBtn');
+  if (btn) {
+    var SND = { he: { on: 'הפעלת קול', off: 'השתקה' }, en: { on: 'Sound on', off: 'Mute' } };
+    function label() {
+      var L = (window.__lang && window.__lang() === 'en') ? 'en' : 'he';
+      btn.textContent = hero.muted ? SND[L].on : SND[L].off;
+    }
+    btn.addEventListener('click', function () {
+      hero.muted = !hero.muted;
+      btn.setAttribute('aria-pressed', hero.muted ? 'false' : 'true');
+      label();
+      if (!hero.muted) { var p = hero.play(); if (p && p.catch) { p.catch(function () {}); } }
+    });
+    if (window.__onLang) { window.__onLang(label); }
+    label();
+  }
+})();
+
+(function () {
+  var cv = document.getElementById('scope');
+  if (!cv) { return; }
+  var ctx = cv.getContext('2d');
+  var css = getComputedStyle(document.documentElement);
+  var C = {
+    line:  (css.getPropertyValue('--line2') || '#28384a').trim(),
+    grid:  (css.getPropertyValue('--line') || '#1B2430').trim(),
+    brand: (css.getPropertyValue('--brand') || '#F26522').trim(),
+    ink:   (css.getPropertyValue('--muted') || '#7D8B9B').trim()
+  };
+
+  // The trace is a real fridge cell's day, compressed: a shelf that starts full, is emptied take by
+  // take, and is refilled by the branch's trustee. Each step down is one door opening.
+  var FULL = 2560, UNIT = 420;          // grams: a full cell, and one chocolate shake
+  var TX = {
+    he: { closed: 'דלת נסגרה', refill: 'מילוי מדף', g: ' ג׳' },
+    en: { closed: 'Door closed', refill: 'Shelf refill', g: ' g' }
+  };
+  var events = [
+    { d: -UNIT, label: 'שייק שוקולד ×1', labelEn: 'chocolate shake ×1', cart: '1 פריט · מוכן לחיוב', cartEn: '1 item · ready to charge' },
+    { d: -UNIT, label: 'שייק שוקולד ×1', labelEn: 'chocolate shake ×1', cart: '1 פריט · מוכן לחיוב', cartEn: '1 item · ready to charge' },
+    { d: +UNIT, label: 'החזרה למדף · אותה פתיחה', labelEn: 'put back · same opening', cart: 'הסל התאפס', cartEn: 'cart back to zero' },
+    { d: -UNIT * 2, label: 'שייק שוקולד ×2', labelEn: 'chocolate shake ×2', cart: '2 פריטים · מוכן לחיוב', cartEn: '2 items · ready to charge' },
+    { d: -UNIT, label: 'שייק שוקולד ×1', labelEn: 'chocolate shake ×1', cart: '1 פריט · מוכן לחיוב', cartEn: '1 item · ready to charge' },
+    { d: +UNIT * 3, label: 'מילוי מהמזווה · נאמן הסניף', labelEn: 'refill from the pantry · branch trustee', cart: 'לא חיוב · תנועת מלאי', cartEn: 'not a charge · stock movement', refill: true },
+    { d: -UNIT, label: 'שייק שוקולד ×1', labelEn: 'chocolate shake ×1', cart: '1 פריט · מוכן לחיוב', cartEn: '1 item · ready to charge' }
+  ];
+
+  var wNow = document.getElementById('wNow'), ev = document.getElementById('ev'),
+      df = document.getElementById('df'), ct = document.getElementById('ct');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var W = 0, H = 0, dpr = 1;
+  function size() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // one sample per frame-ish; the line settles between openings so the steps read as events
+  var samples = [], MAXS = 260, idx = 0, hold = 0, target = FULL, cur = FULL;
+
+  function seed() {
+    samples.length = 0;
+    for (var i = 0; i < MAXS; i++) { samples.push(FULL); }
+  }
+
+  function step() {
+    if (hold > 0) { hold--; }
+    else {
+      var e = events[idx % events.length];
+      var L = (window.__lang && window.__lang() === 'en') ? 'en' : 'he', t = TX[L];
+      target = Math.max(UNIT, Math.min(FULL + UNIT, target + e.d));
+      if (ev) { ev.textContent = e.refill ? t.refill : t.closed; }
+      if (df) {
+        df.innerHTML = '<b>' + (e.d < 0 ? '−' : '+') + Math.abs(e.d).toLocaleString(L === 'en' ? 'en-US' : 'he-IL') +
+          t.g + '</b> · ' + (L === 'en' ? e.labelEn : e.label);
+      }
+      if (ct) { ct.textContent = L === 'en' ? e.cartEn : e.cart; }
+      idx++; hold = 52;
+    }
+    cur += (target - cur) * 0.14;                       // the settle a load cell actually shows
+    if (Math.abs(target - cur) < 0.6) { cur = target; }
+    var noise = (Math.random() - 0.5) * 2.2;            // sensor jitter, in grams
+    samples.push(cur + noise);
+    if (samples.length > MAXS) { samples.shift(); }
+    if (wNow) { wNow.textContent = Math.round(cur).toLocaleString('he-IL'); }
+  }
+
+  function y(v) {
+    var top = 22, bot = H - 18, max = FULL + UNIT * 1.2, min = 0;
+    return bot - (bot - top) * ((v - min) / (max - min));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // grid + gram labels, on the same scale the line is drawn to
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textBaseline = 'middle';
+    [0, 1000, 2000, 3000].forEach(function (g) {
+      var yy = Math.round(y(g)) + 0.5;
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(44, yy); ctx.lineTo(W - 10, yy); ctx.stroke();
+      ctx.fillStyle = C.ink; ctx.textAlign = 'left';
+      ctx.fillText(g.toLocaleString('en-US'), 8, yy);
+    });
+
+    var n = samples.length, x0 = 44, xw = (W - 10) - x0;
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var xx = x0 + xw * (i / (n - 1)), yy = y(samples[i]);
+      if (i === 0) { ctx.moveTo(xx, yy); } else { ctx.lineTo(xx, yy); }
+    }
+    ctx.strokeStyle = C.brand; ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.stroke();
+
+    // area under the trace
+    ctx.lineTo(x0 + xw, H - 18); ctx.lineTo(x0, H - 18); ctx.closePath();
+    var g2 = ctx.createLinearGradient(0, 0, 0, H);
+    g2.addColorStop(0, 'rgba(242,101,34,.20)'); g2.addColorStop(1, 'rgba(242,101,34,0)');
+    ctx.fillStyle = g2; ctx.fill();
+
+    // live end
+    var ly = y(samples[n - 1]);
+    ctx.beginPath(); ctx.arc(x0 + xw, ly, 3.4, 0, Math.PI * 2);
+    ctx.fillStyle = C.brand; ctx.fill();
+    ctx.beginPath(); ctx.arc(x0 + xw, ly, 7.5, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(242,101,34,.35)'; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  function frame() { step(); draw(); requestAnimationFrame(frame); }
+
+  size(); seed();
+  if (reduce) {
+    for (var k = 0; k < MAXS; k++) { step(); }   // a settled trace, no motion
+    draw();
+  } else {
+    frame();
+  }
+  window.addEventListener('resize', function () { size(); draw(); });
+})();
+
+/* ---------- Genie: the exchange a customer actually has with the screen ---------- */
+(function () {
+  var chat = document.getElementById('chat'), voice = document.getElementById('voice');
+  if (!chat) { return; }
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var SCRIPTS = {
+    he: [
+      { who: 'you', t: 'מה ההבדל בין שני הקריאטינים?' },
+      { who: 'g',   t: 'שניהם מונוהידראט. הכחול 300 גרם ב־89 ש״ח, הלבן 500 גרם ב־129 — יוצא זול יותר לגרם.' },
+      { who: 'you', t: 'ומה שווה לקחת אחרי אימון ערב?' },
+      { who: 'g',   t: 'שייק החלבון בשוקולד. 24 גרם חלבון, והוא במדף השני מימין — נשארו שלושה.' },
+      { who: 'g',   t: 'דרך אגב, הווניל החדש הגיע היום באותו מחיר. רוצה שאשמור לך אחד בצד?' }
+    ],
+    en: [
+      { who: 'you', t: 'What is the difference between the two creatines?' },
+      { who: 'g',   t: 'Both are monohydrate. The blue one is 300 g for 89, the white 500 g for 129 — cheaper per gram.' },
+      { who: 'you', t: 'And what is worth taking after an evening workout?' },
+      { who: 'g',   t: 'The chocolate protein shake. 24 g of protein, second shelf on the right — three left.' },
+      { who: 'g',   t: 'By the way, the new vanilla arrived today at the same price. Want me to keep one for you?' }
+    ]
+  };
+  var WHO = { he: { g: 'ג׳יני', you: 'לקוח' }, en: { g: 'Genie', you: 'Customer' } };
+  function L() { return (window.__lang && window.__lang() === 'en') ? 'en' : 'he'; }
+  var script = SCRIPTS[L()];
+
+  function bubble(item, instant) {
+    var el = document.createElement('div');
+    el.className = 'bub ' + (item.who === 'g' ? 'g' : 'you');
+    var who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = WHO[L()][item.who === 'g' ? 'g' : 'you'];
+    el.appendChild(who);
+    var body = document.createElement('span');
+    el.appendChild(body);
+    chat.appendChild(el);
+    while (chat.children.length > 4) { chat.removeChild(chat.firstChild); }
+    if (instant) { body.textContent = item.t; return Promise.resolve(); }
+    return new Promise(function (done) {
+      var i = 0, caret = document.createElement('i');
+      caret.className = 'caret';
+      el.appendChild(caret);
+      if (item.who === 'g' && voice) { voice.style.visibility = 'visible'; }
+      var timer = setInterval(function () {
+        body.textContent = item.t.slice(0, ++i);
+        if (i >= item.t.length) {
+          clearInterval(timer);
+          if (caret.parentNode) { caret.parentNode.removeChild(caret); }
+          if (item.who === 'g' && voice) { voice.style.visibility = 'hidden'; }
+          setTimeout(done, item.who === 'g' ? 1500 : 600);
+        }
+      }, item.who === 'g' ? 26 : 42);
+    });
+  }
+
+  function still() {                                   // reduced motion: show the exchange at rest
+    chat.innerHTML = '';
+    SCRIPTS[L()].slice(1).forEach(function (s) { bubble(s, true); });
+  }
+  if (voice) { voice.style.visibility = 'hidden'; }
+  if (reduce) {
+    still();
+    if (window.__onLang) { window.__onLang(still); }
+    return;
+  }
+  var n = 0, langAt = L();
+  if (window.__onLang) { window.__onLang(function () { n = 0; chat.innerHTML = ''; }); }
+  (function loop() {
+    if (L() !== langAt) { langAt = L(); n = 0; chat.innerHTML = ''; }
+    var list = SCRIPTS[langAt];
+    var item = list[n % list.length];
+    n++;
+    if (n % list.length === 1) { chat.innerHTML = ''; }
+    bubble(item, false).then(loop);
+  })();
+})();
+
+/* ---------- Suppliers: the document moving through the four hands ---------- */
+(function () {
+  var pipe = document.getElementById('pipe');
+  if (!pipe) { return; }
+  var nodes = Array.prototype.slice.call(pipe.querySelectorAll('.node'));
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { nodes.forEach(function (n) { n.classList.add('done'); }); return; }
+  var at = 0;
+  function paint() {
+    nodes.forEach(function (n, i) {
+      n.classList.toggle('on', i === at);
+      n.classList.toggle('done', i < at);
+    });
+    at = (at + 1) % (nodes.length + 1);
+  }
+  paint();
+  setInterval(paint, 2200);
+})();
+
+/* ---------- The trustee's app: a fill is money the same second ---------- */
+(function () {
+  var feed = document.getElementById('tfeed'), bal = document.getElementById('tbal');
+  if (!feed) { return; }
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var evs = [
+    { w: 'היום 08:31', wEn: 'today 08:31', d: 'מילוי מהמזווה · 18 יחידות', dEn: 'Refill from the pantry · 18 units', a: 7.4 },
+    { w: 'היום 08:14', wEn: 'today 08:14', d: 'קליטת משלוח · חשבונית 3042233', dEn: 'Delivery received · invoice 3042233', a: 30.9 },
+    { w: 'אתמול 19:02', wEn: 'yesterday 19:02', d: 'מילוי מהמזווה · 11 יחידות', dEn: 'Refill from the pantry · 11 units', a: 4.6 },
+    { w: 'אתמול 07:48', wEn: 'yesterday 07:48', d: 'מילוי מהמזווה · 22 יחידות', dEn: 'Refill from the pantry · 22 units', a: 9.1 }
+  ];
+  var lang = (window.__lang && window.__lang() === 'en') ? 'en' : 'he';
+  var total = 0;
+  evs.forEach(function (e) {
+    total += e.a;
+    var row = document.createElement('div');
+    row.className = 'fev';
+    row.innerHTML = '<span class="w t9n" data-he="' + e.w + '" data-en="' + e.wEn + '">' + (lang === 'en' ? e.wEn : e.w) + '</span>' +
+      '<span class="d t9n" data-he="' + e.d + '" data-en="' + e.dEn + '">' + (lang === 'en' ? e.dEn : e.d) + '</span>' +
+      '<span class="a num">+₪' + e.a.toFixed(2) + '</span>';
+    feed.appendChild(row);
+  });
+  var shown = 442 + total;                       // the month so far, plus today's events
+  if (reduce) { bal.textContent = '₪' + shown.toFixed(0); return; }
+  var v = 0, stepv = shown / 42;
+  var t = setInterval(function () {
+    v += stepv;
+    if (v >= shown) { v = shown; clearInterval(t); }
+    bal.textContent = '₪' + v.toFixed(0);
+  }, 24);
+})();
+</script>
+
+</body>
+</html>
